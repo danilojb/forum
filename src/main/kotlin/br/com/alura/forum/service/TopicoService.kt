@@ -1,8 +1,13 @@
 package br.com.alura.forum.service
 
 import br.com.alura.forum.dto.NovoTopicoDTO
+import br.com.alura.forum.dto.TopicoView
+import br.com.alura.forum.model.StatusToopico
 import br.com.alura.forum.model.Topico
 import org.springframework.stereotype.Service
+import java.time.LocalDateTime
+import java.util.stream.Collectors
+import kotlin.Long
 
 @Service
 class TopicoService(
@@ -11,14 +16,27 @@ class TopicoService(
     private val usuarioService: UsuarioService
     ) {
 
-    fun listar(): List<Topico> {
-         return topicos
+    fun buscarPorId(id: Long): TopicoView {
+        val topico = topicos.stream().filter { t ->
+            t.id == id
+        }.findFirst().get()
+        return TopicoView(
+            id = topico.id,
+            titulo = topico.titulo,
+            mensagem = topico.mensagem,
+            status = topico.status,
+            dataCriacao = topico.dataCriacao
+        )
     }
 
-    fun buscarPorId(id: Long): Topico {
-        return topicos.stream().filter({
-            topico -> topico.id == id
-        }).findFirst().get()
+    fun listar(): List<TopicoView> {
+         return topicos.stream().map { t -> TopicoView(
+             id = t.id,
+             titulo = t.titulo,
+             mensagem = t.mensagem,
+             status = t.status,
+             dataCriacao = t.dataCriacao
+         ) }.collect(Collectors.toList())
     }
 
     fun cadastrar(dto: NovoTopicoDTO) {
